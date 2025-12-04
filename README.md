@@ -4,9 +4,7 @@ A modern, responsive admin dashboard built with **Next.js**, **Material-UI (MUI)
 
 ---
 
-## Objective
 
-This project assesses the candidate’s practical skills in building a modern, responsive, and efficient web application using **Next.js**, **Zustand**, **MUI**, and integrating **REST APIs**.
 
 ---
 
@@ -29,5 +27,3 @@ This project assesses the candidate’s practical skills in building a modern, r
 
 ---
 
-/github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
