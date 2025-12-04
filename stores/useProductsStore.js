@@ -1,30 +1,36 @@
+// store/useProductsStore.js
+"use client";
 import { create } from "zustand";
-import { api } from "../lib/api";
 
 export const useProductsStore = create((set) => ({
   products: [],
   total: 0,
   loading: false,
-
+  categories: [],
   fetchProducts: async ({ limit = 10, skip = 0, q = "", category = "" }) => {
     set({ loading: true });
-
     try {
-      let url = `/products?limit=${limit}&skip=${skip}`;
+      let url = category
+        ? `https://dummyjson.com/products/category/${category}?limit=${limit}&skip=${skip}`
+        : q
+        ? `https://dummyjson.com/products/search?q=${q}&limit=${limit}&skip=${skip}`
+        : `https://dummyjson.com/products?limit=${limit}&skip=${skip}`;
 
-      if (q) url = `/products/search?q=${q}`;
-      if (category) url = `/products/category/${category}`;
-
-      const res = await api.get(url);
-
-      set({
-        products: res.data.products,
-        total: res.data.total,
-      });
+      const res = await fetch(url);
+      const data = await res.json();
+      set({ products: data.products || [], total: data.total || 0, loading: false });
     } catch (err) {
-      console.error("Failed to fetch products", err);
-    } finally {
+      console.error(err);
       set({ loading: false });
+    }
+  },
+  fetchCategories: async () => {
+    try {
+      const res = await fetch("https://dummyjson.com/products/categories");
+      const data = await res.json();
+      set({ categories: data });
+    } catch (err) {
+      console.error(err);
     }
   },
 }));
