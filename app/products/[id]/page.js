@@ -1,40 +1,61 @@
-// app/products/[id]/page.js
 "use client";
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { Container, Typography, Paper, Button } from "@mui/material";
-import { useProductsStore } from "../../../stores/useProductsStore";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  Container,
+  Typography,
+  CircularProgress,
+  Button,
+  Grid,
+} from "@mui/material";
 import Link from "next/link";
-import { Carousel } from "react-responsive-carousel";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 
-export default function ProductDetail() {
+export default function SingleProductPage() {
   const { id } = useParams();
-  const fetchProductById = useProductsStore((s) => s.fetchProductById);
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    (async () => {
-      const p = await fetchProductById(id);
-      setProduct(p);
-    })();
+    async function fetchProduct() {
+      setLoading(true);
+      try {
+        const res = await fetch(`https://dummyjson.com/products/${id}`);
+        const data = await res.json();
+        setProduct(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProduct();
   }, [id]);
 
-  if (!product) return <Container><Typography>Loading...</Typography></Container>;
+  if (loading) return <CircularProgress />;
+
+  if (!product) return <Typography>Product not found.</Typography>;
 
   return (
     <Container>
-      <Button component={Link} href="/products" sx={{ mb: 2 }}>Back to Products</Button>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h4">{product.title}</Typography>
-        <Carousel showThumbs>
-          {product.images?.map((img, idx) => <div key={idx}><img src={img} alt={product.title} /></div>)}
-        </Carousel>
-        <Typography variant="h6" sx={{ mt: 2 }}>Price: ₹{product.price}</Typography>
-        <Typography sx={{ mt: 1 }}>{product.description}</Typography>
-        <Typography sx={{ mt: 1 }}>Category: {product.category}</Typography>
-        <Typography sx={{ mt: 1 }}>Rating: {product.rating}</Typography>
-      </Paper>
-    </Container>
+      <Button component={Link} href="/products" variant="contained" sx={{ mb: 2 }}>
+        Back to Products
+      </Button>
+
+      <Typography variant="h4" gutterBottom>{product.title}</Typography>
+      <Grid container spacing={2}>
+        {product.images.map((img, idx) => (
+          <Grid item xs={12} md={4} key={idx}>
+            <img src={img} alt={product.title} width="100%" />
+          </Grid>
+        ))}
+      </Grid>
+
+      <Typography variant="h6" mt={2}>${product.price}</Typography>
+      <Typography>{product.description}</Typography>
+      <Typography>Category: {product.category}</Typography>
+      <Typography>Rating:  {product.rating}</Typography>
+      <Typography>Stock: {product.stock}</Typography>
+  </Container>
   );
 }
