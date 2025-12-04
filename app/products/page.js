@@ -83,7 +83,7 @@ function ProductsPage() {
                   <img src={p.thumbnail} alt={p.title} width="100%" />
                   <Typography>${p.price}</Typography>
                   <Typography>{p.category}</Typography>
-                  <Typography>⭐ {p.rating}</Typography>
+                  <Typography> {p.rating}</Typography>
                   <Button
                     component={Link}
                     href={`/products/${p.id}`}
