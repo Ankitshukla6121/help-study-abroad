@@ -1,34 +1,28 @@
 "use client";
-
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Container,
-  TextField,
-  Pagination,
   Grid,
   Card,
   CardContent,
   Typography,
   Button,
   CircularProgress,
+  TextField,
+  Pagination,
 } from "@mui/material";
 import Link from "next/link";
-import { useUsersStore } from "@/stores/useUsersStore";
+import { useUsersStore } from "@/store/useUsersStore";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 function UsersPage() {
   const { users = [], total = 0, fetchUsers, loading } = useUsersStore();
-
   const [page, setPage] = useState(1);
   const [q, setQ] = useState("");
   const limit = 10;
 
   const load = useCallback(() => {
-    fetchUsers({
-      limit,
-      skip: (page - 1) * limit,
-      q,
-    });
+    fetchUsers({ limit, skip: (page - 1) * limit, q });
   }, [page, q, limit, fetchUsers]);
 
   useEffect(() => {
@@ -41,7 +35,7 @@ function UsersPage() {
         Users
       </Typography>
 
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
@@ -71,7 +65,6 @@ function UsersPage() {
                     {u.gender} • {u.phone}
                   </Typography>
                   <Typography>{u.company?.name}</Typography>
-
                   <Button
                     component={Link}
                     href={`/users/${u.id}`}
@@ -97,7 +90,6 @@ function UsersPage() {
   );
 }
 
-// ✅ Protected Wrapper
 export default function UsersPageWrapper() {
   return (
     <ProtectedRoute>
