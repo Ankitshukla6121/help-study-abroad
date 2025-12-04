@@ -1,55 +1,97 @@
-// app/products/page.js
 "use client";
-import React, { useEffect, useState } from "react";
-import { Container, Grid, TextField, MenuItem, Select, InputLabel, FormControl, Pagination, Card, CardMedia, CardContent, Typography, Button, CircularProgress } from "@mui/material";
+import { useEffect, useState, useCallback } from "react";
+import {
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  CircularProgress,
+  TextField,
+  Pagination,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 import Link from "next/link";
-import { useProductsStore } from "../../stores/useProductsStore";
+import { useProductsStore } from "@/store/useProductsStore";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function ProductsPage() {
-  const { products, total, fetchProducts, fetchCategories, categories, loading } = useProductsStore();
+function ProductsPage() {
+  const { products, total, loading, categories, fetchProducts, fetchCategories } = useProductsStore();
   const [page, setPage] = useState(1);
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
   const limit = 10;
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const load = useCallback(() => {
+    fetchProducts({ limit, skip: (page - 1) * limit, q, category });
+  }, [page, q, category, fetchProducts]);
 
   useEffect(() => {
-    fetchProducts({ limit, skip: (page - 1) * limit, q, category });
-  }, [page, q, category]);
+    fetchCategories();
+  }, [fetchCategories]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>Products</Typography>
+      <Typography variant="h4" gutterBottom>
+        Products
+      </Typography>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} md={6}>
-          <TextField fullWidth placeholder="Search products..." value={q} onChange={(e) => setQ(e.target.value)} />
+        <Grid item xs={12} md={4}>
+          <TextField
+            fullWidth
+            placeholder="Search products..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") setPage(1); }}
+          />
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={4}>
           <FormControl fullWidth>
             <InputLabel>Category</InputLabel>
-            <Select value={category} label="Category" onChange={(e) => setCategory(e.target.value)}>
+            <Select
+              value={category}
+              label="Category"
+              onChange={(e) => setCategory(e.target.value)}
+            >
               <MenuItem value="">All</MenuItem>
-              {categories.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+              {categories.map((c) => (
+                <MenuItem key={c} value={c}>{c}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Grid>
       </Grid>
 
-      {loading ? <CircularProgress /> : (
+      {loading ? (
+        <CircularProgress />
+      ) : (
         <Grid container spacing={2}>
           {products.map((p) => (
             <Grid item xs={12} md={4} key={p.id}>
               <Card>
-                <CardMedia component="img" height="140" image={p.thumbnail || p.images?.[0]} alt={p.title} />
                 <CardContent>
                   <Typography variant="h6">{p.title}</Typography>
-                  <Typography>₹{p.price}</Typography>
-                  <Typography>{p.category} • ⭐{p.rating}</Typography>
-                  <Button component={Link} href={`/products/${p.id}`} sx={{ mt: 1 }}>View</Button>
+                  <img src={p.thumbnail} alt={p.title} width="100%" />
+                  <Typography>${p.price}</Typography>
+                  <Typography>{p.category}</Typography>
+                  <Typography>⭐ {p.rating}</Typography>
+                  <Button
+                    component={Link}
+                    href={`/products/${p.id}`}
+                    sx={{ mt: 1 }}
+                    variant="contained"
+                  >
+                    View
+                  </Button>
                 </CardContent>
               </Card>
             </Grid>
@@ -57,7 +99,20 @@ export default function ProductsPage() {
         </Grid>
       )}
 
-      <Pagination sx={{ mt: 2 }} count={Math.ceil((total || products.length) / limit)} page={page} onChange={(e, v) => setPage(v)} />
+      <Pagination
+        sx={{ mt: 2 }}
+        count={Math.max(1, Math.ceil(total / limit))}
+        page={page}
+        onChange={(e, v) => setPage(v)}
+      />
     </Container>
+  );
+}
+
+export default function ProductsPageWrapper() {
+  return (
+    <ProtectedRoute>
+      <ProductsPage />
+    </ProtectedRoute>
   );
 }
