@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container, TextField, Button, Typography, Box } from "@mui/material";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -12,32 +12,32 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleSubmit = (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (
-    username.trim().toLowerCase() === "emilys" &&
-    password.trim() === "emilyspass"
-  ) {
-    login(
-      {
-        id: 1,
-        name: "Emily Johnson",
-        email: "emily.johnson@x.dummyjson.com",
-      },
-      "dummy-token"
-    );
-
-    router.push("/users"); // ✅ proper redirect
-  } else {
-    setError("Invalid username or password");
-  }
-};
-
+    if (
+      username.trim().toLowerCase() === "emilys" &&
+      password.trim() === "emilyspass"
+    ) {
+      login(
+        {
+          id: 1,
+          name: "Emily Johnson",
+          email: "emily.johnson@x.dummyjson.com",
+        },
+        "dummy-token"
+      );
+      router.push("/users");
+    } else {
+      setError("Invalid username or password");
+    }
+  };
 
   return (
     <Container maxWidth="sm">
       <Box mt={10} p={3} border={1} borderRadius={2}>
-        <Typography variant="h5" mb={2}>Admin Login</Typography>
+        <Typography variant="h5" mb={2}>
+          Admin Login
+        </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
@@ -55,7 +55,9 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
           {error && <Typography color="error">{error}</Typography>}
-          <Button fullWidth type="submit" variant="contained" sx={{ mt: 2 }}>Login</Button>
+          <Button fullWidth type="submit" variant="contained" sx={{ mt: 2 }}>
+            Login
+          </Button>
         </form>
       </Box>
     </Container>
