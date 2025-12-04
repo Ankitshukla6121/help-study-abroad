@@ -1,28 +1,22 @@
+// store/useUsersStore.js
+"use client";
 import { create } from "zustand";
-import { api } from "../lib/api";
 
 export const useUsersStore = create((set) => ({
   users: [],
   total: 0,
   loading: false,
-
   fetchUsers: async ({ limit = 10, skip = 0, q = "" }) => {
     set({ loading: true });
+    let url = `https://dummyjson.com/users?limit=${limit}&skip=${skip}`;
+    if (q) url = `https://dummyjson.com/users/search?q=${q}`;
 
     try {
-      const url = q
-        ? `/users/search?q=${q}`
-        : `/users?limit=${limit}&skip=${skip}`;
-
-      const res = await api.get(url);
-
-      set({
-        users: res.data.users,
-        total: res.data.total,
-      });
+      const res = await fetch(url);
+      const data = await res.json();
+      set({ users: data.users, total: data.total, loading: false });
     } catch (err) {
-      console.error("Failed to fetch users", err);
-    } finally {
+      console.error(err);
       set({ loading: false });
     }
   },
